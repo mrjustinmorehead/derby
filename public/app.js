@@ -61,6 +61,7 @@ function renderPot() {
 // Horses
 function renderHorses() {
   horsesEl.innerHTML = '';
+  if (!Array.isArray(state.squares) || !state.squares.length) { renderEmptyState(); return; }
   const frag = document.createDocumentFragment();
   for (let i = 1; i <= state.gridSize; i++) {
     const div = document.createElement('div');
@@ -90,9 +91,18 @@ function timeLeftFor(iso) {
   return `${m}:${s}`;
 }
 
+function renderEmptyState(){
+  const msg = document.createElement('div');
+  msg.className = 'status-card warn';
+  msg.textContent = 'No grid data yet. Open /api/list-squares in a new tab to confirm your functions are running.';
+  gridEl.innerHTML = '';
+  gridEl.appendChild(msg);
+}
+
 function renderGrid() {
   gridEl.innerHTML = '';
   gridEl.style.gridTemplateColumns = `repeat(${state.gridSize}, 44px)`;
+  if (!Array.isArray(state.squares) || !state.squares.length) { renderEmptyState(); return; }
   const frag = document.createDocumentFragment();
   for (const s of state.squares) {
     if (uiFilter !== 'all' && s.status !== uiFilter) continue;
