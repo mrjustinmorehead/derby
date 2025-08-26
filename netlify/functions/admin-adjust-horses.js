@@ -1,8 +1,9 @@
+const { adminFromEvent } = require('./_auth');
 const { ensureInitialized, setJSON, saveGridAndJackpot, addAdminLog } = require('./kv-util');
 
 exports.handler = async (event) => {
-  if (event.headers['x-admin-key'] !== process.env.ADMIN_KEY) {
-    return { statusCode: 403, body: 'Forbidden' };
+  const admin = adminFromEvent(event, true);
+  if (!admin) return { statusCode: 403, body: 'Forbidden' };
   }
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method not allowed' };
@@ -11,6 +12,8 @@ exports.handler = async (event) => {
   try {
     const { newCount, preview = false } = JSON.parse(event.body || '{}');
     const { grid, gridSize, pricePerSquare, horses } = await ensureInitialized();
+    const eventLocked = !!(await getJSON('eventLocked', false));
+    if (eventLocked) return { statusCode: 409, body: 'Event is locked' };
 
     if (!newCount || newCount < 1 || newCount > gridSize) {
       return { statusCode: 400, body: 'Invalid newCount' };
@@ -72,7 +75,7 @@ exports.handler = async (event) => {
     await setJSON('gridSize', newCount);
     await setJSON('horses', horses.slice(0, newCount)); // trim horses array
     await saveGridAndJackpot(newGrid, pricePerSquare);
-    await addAdminLog('adjust-horses', { from: gridSize, to: newCount, reassigned: moves.length });
+    await addAdminLog('adjust-horses', { from: gridSize, to: newCount, reassigned: moves.length, actor: admin.sub, ip: event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'] || event.ip || 'unknown' });
 
     return { statusCode: 200, body: JSON.stringify({ ok: true, removed, reassigned: moves }) };
   } catch (e) {

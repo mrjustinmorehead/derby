@@ -1,4 +1,8 @@
 :root {
+  --square-size: 44px;
+}
+
+:root {
   --derbyred: #DB0032;
   --gold: #C5A572;
   --navy: #002147;
@@ -39,9 +43,14 @@ h1, h2, h3 {
   padding: 0.5rem 1rem;
   z-index: 10;
   border-bottom: 2px solid var(--navy);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
 }
+#qr { width: 48px; height: 48px; }
 
-.mapping {
+.mapping, .legend {
   background: var(--white);
   border: 1px solid var(--gold);
   padding: 1rem;
@@ -51,20 +60,20 @@ h1, h2, h3 {
 
 #horses {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(120px,1fr));
+  grid-template-columns: repeat(auto-fit,minmax(140px,1fr));
   gap: .25rem .5rem;
-  font-size: .9rem;
+  font-size: .95rem;
 }
 
 #grid {
   display: grid;
   gap: 2px;
-  margin: 1rem 0;
+  margin: 1rem;
 }
 
 .square {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,8 +81,9 @@ h1, h2, h3 {
   cursor: pointer;
   border: 1px solid var(--navy);
   background: var(--white);
+  user-select: none;
 }
-.square.held { background-color: var(--derbyred); color: var(--white); }
+.square.held { background: repeating-linear-gradient(45deg, var(--derbyred), var(--derbyred) 6px, #b00028 6px, #b00028 12px); color: var(--white); }
 .square.paid { background-color: var(--gold); color: var(--navy); }
 .square.blocked { background-color: #ccc; color: #666; cursor: not-allowed; }
 .square.scratched { background-color: var(--scratched); color: var(--white); }
@@ -84,7 +94,7 @@ h1, h2, h3 {
   color: var(--white);
   border: 2px solid var(--derbyred);
   border-radius: 6px;
-  padding: .5rem 1rem;
+  padding: .6rem 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -99,7 +109,7 @@ h1, h2, h3 {
   color: var(--white);
   border: 2px solid var(--navy);
   border-radius: 6px;
-  padding: .4rem .8rem;
+  padding: .5rem .9rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -114,7 +124,7 @@ h1, h2, h3 {
   border: 1px solid var(--border);
   padding: .5rem;
   margin-top: .5rem;
-  max-height: 200px;
+  max-height: 240px;
   overflow: auto;
   font-size: .85rem;
   white-space: pre-wrap;
@@ -127,7 +137,52 @@ h1, h2, h3 {
 }
 
 label input, textarea {
-  padding: .4rem;
+  padding: .5rem;
   border: 1px solid var(--border);
   border-radius: 4px;
 }
+
+.status-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  padding: .5rem .75rem;
+  border-radius: 6px;
+  min-height: 2.25rem;
+}
+
+.chips { display: flex; gap: .5rem; flex-wrap: wrap; margin: .5rem 0; }
+.chip { padding: .25rem .5rem; border-radius: 999px; border: 1px solid var(--border); font-size: .85rem; }
+.chip-available { background: #fff; }
+.chip-held { background: #ffd6df; }
+.chip-paid { background: #efe2c7; }
+.chip-blocked { background: #eee; }
+.chip-scratched { background: #ffd1cc; }
+
+.filters { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+
+/* Responsive square size */
+@media (min-width: 640px) {
+  :root { --square-size: 36px; }
+}
+.square { width: var(--square-size); height: var(--square-size); }
+
+/* Status alert card */
+.status-card {
+  border: 1px solid var(--navy);
+  background: #fff;
+  padding: .5rem .75rem;
+  border-radius: 6px;
+  margin: .5rem 1rem;
+}
+.status-card.ok { border-color: #2e7d32; }
+.status-card.warn { border-color: #ef6c00; }
+.status-card.err { border-color: #c62828; }
+
+/* Legend & filters */
+.legend { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin: 0 1rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .5rem; border: 1px solid var(--border); border-radius: 999px; background: #fff; font-size: .85rem; }
+.legend .swatch { width: 14px; height: 14px; border: 1px solid var(--navy); }
+.filters { display: flex; gap: .5rem; margin: .5rem 1rem; flex-wrap: wrap; }
+.filters button { padding: .3rem .6rem; border-radius: 6px; border: 1px solid var(--border); background: #fff; cursor: pointer; }
+.filters button.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }

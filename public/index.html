@@ -4,22 +4,21 @@
   <meta charset="utf-8"/>
   <title>Morehead Derby Exacta Squares</title>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css"/>
-  <!-- PayPal SDK -->
   <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
 </head>
 <body>
   <header class="hero">
     <div class="hero-inner">
       <h1>Morehead Derby Exacta Squares</h1>
-      <p>Win big on Derby day — true exacta pays 90% of the pot, runner‑up takes 10%</p>
+      <p>True exacta pays <strong>90%</strong> • Runner‑up pays <strong>10%</strong></p>
     </div>
   </header>
 
   <div class="jackpot-bar" aria-live="polite">
     <span id="pot">Loading jackpot…</span>
+    <img id="qr" alt="QR to this page" />
   </div>
 
   <main>
@@ -28,28 +27,62 @@
       <div id="horses"></div>
     </section>
 
+    <section class="legend">
+      <h3>Legend</h3>
+      <div class="chips">
+        <span class="chip chip-available">Available</span>
+        <span class="chip chip-held">Held</span>
+        <span class="chip chip-paid">Paid</span>
+        <span class="chip chip-blocked">Blocked</span>
+        <span class="chip chip-scratched">Scratched</span>
+      </div>
+      <div class="filters">
+        <label><input type="checkbox" id="filterAvailable" checked/> Available</label>
+        <label><input type="checkbox" id="filterHeld" checked/> Held</label>
+        <label><input type="checkbox" id="filterPaid" checked/> Paid</label>
+        <label><input type="checkbox" id="filterBlocked" checked/> Blocked</label>
+        <label><input type="checkbox" id="filterScratched" checked/> Scratched</label>
+      </div>
+    </section>
+
     <section class="buyer">
       <label>Full name <input id="name" autocomplete="name"></label>
       <label>Email <input id="email" type="email" autocomplete="email"></label>
-      <div id="summary"></div>
+      <div id="summary" class="status-card"></div>
     </section>
 
     <section>
-      <div id="grid"></div>
+      <div id="grid" role="grid" aria-label="Derby Squares Grid"></div>
       <div class="actions">
         <button id="lockBtn" class="btn-primary">Hold selected</button>
         <div id="paypal-button-container"></div>
-        <div id="status" role="status" aria-live="polite"></div>
+        <div id="status" class="status-card" role="status" aria-live="polite"></div>
       </div>
     </section>
 
     <section id="adminPanel" hidden>
       <h2>Admin Controls</h2>
       <div class="admin-actions">
-        <button id="assignHorsesBtn" class="btn-secondary">Assign Horses Randomly</button>
-        <label><input type="checkbox" id="forceAssign"> Override Lock</label>
-        <button id="lockHorsesBtn" class="btn-secondary">Lock Assignments</button>
-        <button id="unlockHorsesBtn" class="btn-secondary">Unlock Assignments</button>
+        <div class="group" id="authGroup">
+          <input id="adminSecret" type="password" placeholder="Admin secret"/>
+          <button id="adminLoginBtn" class="btn-secondary">Admin Login</button>
+          <button id="adminLogoutBtn" class="btn-secondary">Logout</button>
+          <span id="adminAuthStatus" aria-live="polite"></span>
+        </div>
+        <div class="group">
+          <label><input type="checkbox" id="eventLocked"> Event locked (disable scratches/resize)</label>
+          <button id="saveConfigBtn" class="btn-secondary">Save Config</button>
+        </div>
+        <div class="group">
+          <button id="exportCsvBtn" class="btn-secondary">Export Paid (CSV)</button>
+          <button id="exportJsonBtn" class="btn-secondary">Export Paid (JSON)</button>
+        </div>
+        <div class="group">
+          <button id="assignHorsesBtn" class="btn-secondary">Assign Horses Randomly</button>
+          <label><input type="checkbox" id="forceAssign"> Override Lock</label>
+          <button id="lockHorsesBtn" class="btn-secondary">Lock Assignments</button>
+          <button id="unlockHorsesBtn" class="btn-secondary">Unlock Assignments</button>
+        </div>
 
         <div class="group">
           <button id="adjustCountPreviewBtn" class="btn-secondary">Preview Adjust Horse Count…</button>
@@ -69,8 +102,18 @@
 
         <div class="group">
           <button id="backupBtn" class="btn-secondary">Download Backup</button>
+          <button id="exportCsvBtn" class="btn-secondary">Export Paid (CSV)</button>
+          <button id="exportJsonBtn" class="btn-secondary">Export Paid (JSON)</button>
           <input type="file" id="restoreFile" accept="application/json"/>
           <button id="restoreBtn" class="btn-secondary">Restore from File</button>
+          <button id="healthBtn" class="btn-secondary">Health Check</button>
+        </div>
+
+        <div class="group">
+          <h3>Config</h3>
+          <label>Price per square <input type="number" id="cfgPrice" step="0.01"></label>
+          <label>Hold minutes <input type="number" id="cfgHold" step="1"></label>
+          <button id="saveConfigBtn" class="btn-secondary">Save Config</button>
         </div>
 
         <pre id="adminOutput" class="panel"></pre>

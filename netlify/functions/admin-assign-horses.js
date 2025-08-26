@@ -1,6 +1,8 @@
+const { adminFromEvent } = require('./_auth');
 const { ensureInitialized, setJSON, addAdminLog } = require('./kv-util');
 exports.handler = async (event) => {
-  if (event.headers['x-admin-key'] !== process.env.ADMIN_KEY) return { statusCode: 403, body: 'Forbidden' };
+  const admin = adminFromEvent(event, true);
+  if (!admin) return { statusCode: 403, body: 'Forbidden' };
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method not allowed' };
   const { force = false } = JSON.parse(event.body || '{}');
   const { horses, horsesLocked } = await ensureInitialized();
@@ -10,6 +12,6 @@ exports.handler = async (event) => {
     const j = Math.floor(Math.random() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   await setJSON('horses', shuffled);
-  await addAdminLog('assign-horses', { force });
+  await addAdminLog('assign-horses', { force, actor: admin.sub, ip: event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'] || event.ip || 'unknown' });
   return { statusCode: 200, body: JSON.stringify({ horses: shuffled }) };
 };

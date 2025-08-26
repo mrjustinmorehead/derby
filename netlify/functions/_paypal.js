@@ -24,14 +24,14 @@ async function getAccessToken() {
   return data.access_token;
 }
 
-async function createOrder(total, description = 'Derby Squares') {
+async function createOrder(total, description = 'Derby Squares', custom_id = null) {
   const access = await getAccessToken();
   const res = await fetch(`${PP_BASE}/v2/checkout/orders`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${access}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       intent: 'CAPTURE',
-      purchase_units: [{ amount: { currency_code: DEFAULT_CURRENCY, value: total.toFixed(2) }, description }],
+      purchase_units: [{ amount: { currency_code: DEFAULT_CURRENCY, value: total.toFixed(2) }, description, custom_id }],
       application_context: {
         brand_name: 'Morehead Derby Squares',
         user_action: 'PAY_NOW',
@@ -57,3 +57,17 @@ async function captureOrder(orderId) {
 }
 
 module.exports = { createOrder, captureOrder };
+
+
+async function getOrder(orderId) {
+  const access = await getAccessToken();
+  const res = await fetch(`${PP_BASE}/v2/checkout/orders/${orderId}`, {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${access}` },
+  });
+  const data = await res.json();
+  if (!data.id) throw new Error('Failed to fetch order');
+  return data;
+}
+
+module.exports.getOrder = getOrder;

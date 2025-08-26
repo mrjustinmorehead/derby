@@ -9,3 +9,29 @@
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Content-Type-Options = "nosniff"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.paypal.com; connect-src 'self' https://api-m.paypal.com https://api-m.sandbox.paypal.com; img-src 'self' data: https://api.qrserver.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; frame-src https://www.paypal.com"
+
+# Cache static assets
+[[headers]]
+  for = "/app.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/styles.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Do not cache HTML
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache"
