@@ -1,16 +1,32 @@
-// full Derby-branded KV utility
-const kv = require('@netlify/kv');
+// Derby-branded KV utilities, now backed by Netlify Blobs (zero-config)
+const { getStore } = require('@netlify/blobs');
+
+// One shared, strongly-consistent store for the site
+const store = getStore('derby-squares', { consistency: 'strong' });
 
 const envPrice = parseFloat(process.env.PRICE_PER_SQUARE || '5');
 const envGrid = parseInt(process.env.GRID_SIZE || '20', 10);
 const envHold = parseInt(process.env.HOLD_MINUTES || '10', 10);
 
+// --- Minimal blob helpers ---
 async function getJSON(key, fallback) {
-  const raw = await kv.get(key);
-  if (!raw) return fallback;
-  try { return JSON.parse(raw); } catch { return fallback; }
+  try {
+    const val = await store.get(key, { type: 'json' });
+    return (val === undefined || val === null) ? fallback : val;
+  } catch {
+    return fallback;
+  }
 }
-async function setJSON(key, val) { await kv.set(key, JSON.stringify(val)); }
+async function setJSON(key, val) {
+  await store.set(key, JSON.stringify(val));
+}
+async function getText(key, fallback) {
+  const val = await store.get(key); // string
+  return (val === undefined || val === null) ? fallback : val;
+}
+async function setText(key, val) {
+  await store.set(key, String(val));
+}
 
 function nowISO() { return new Date().toISOString(); }
 function addMinutes(iso, minutes) {
@@ -43,25 +59,31 @@ function computeJackpots(grid, price) {
 }
 
 async function ensureInitialized() {
-  let pricePerSquare = parseFloat(await kv.get('pricePerSquare')) || envPrice;
-  let gridSize = parseInt(await kv.get('gridSize')) || envGrid;
+  // numeric settings (prefer stored, fall back to env)
+  const pricePerSquare = Number(await getJSON('pricePerSquare', envPrice));
+  const gridSize = Number(await getJSON('gridSize', envGrid));
+
   let grid = await getJSON('grid', null);
-  if (!grid) {
+  if (!Array.isArray(grid) || !grid.length) {
     grid = createEmptyGrid(gridSize, pricePerSquare);
     await setJSON('grid', grid);
   }
   let horses = await getJSON('horses', null);
-  if (!horses || horses.length !== gridSize) {
+  if (!Array.isArray(horses) || horses.length !== gridSize) {
     horses = Array.from({ length: gridSize }, (_, i) => `${i + 1}`);
     await setJSON('horses', horses);
   }
-  const horsesLocked = (await kv.get('horsesLocked')) === 'true';
+  const horsesLocked = Boolean(await getJSON('horsesLocked', false));
+
   const jp = computeJackpots(grid, pricePerSquare);
   await setJSON('jackpot', jp);
-  if (!(await kv.get('potHistory'))) {
+
+  if (!await getJSON('potHistory', null)) {
     await setJSON('potHistory', [{ ts: nowISO(), paidCount: grid.filter(s => s.status === 'paid').length }]);
   }
-  if (!(await kv.get('adminLog'))) await setJSON('adminLog', []);
+  if (!await getJSON('adminLog', null)) {
+    await setJSON('adminLog', []);
+  }
   return { grid, gridSize, pricePerSquare, horses, horsesLocked };
 }
 
