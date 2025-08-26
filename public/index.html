@@ -1,1 +1,83 @@
-[...full final Derby‑branded index.html content with hero banner, sticky jackpot bar, mapping card...]
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Morehead Derby Exacta Squares</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css"/>
+  <!-- PayPal SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>Morehead Derby Exacta Squares</h1>
+      <p>Win big on Derby day — true exacta pays 90% of the pot, runner‑up takes 10%</p>
+    </div>
+  </header>
+
+  <div class="jackpot-bar" aria-live="polite">
+    <span id="pot">Loading jackpot…</span>
+  </div>
+
+  <main>
+    <section class="mapping">
+      <h2>Horse Mapping</h2>
+      <div id="horses"></div>
+    </section>
+
+    <section class="buyer">
+      <label>Full name <input id="name" autocomplete="name"></label>
+      <label>Email <input id="email" type="email" autocomplete="email"></label>
+      <div id="summary"></div>
+    </section>
+
+    <section>
+      <div id="grid"></div>
+      <div class="actions">
+        <button id="lockBtn" class="btn-primary">Hold selected</button>
+        <div id="paypal-button-container"></div>
+        <div id="status" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="adminPanel" hidden>
+      <h2>Admin Controls</h2>
+      <div class="admin-actions">
+        <button id="assignHorsesBtn" class="btn-secondary">Assign Horses Randomly</button>
+        <label><input type="checkbox" id="forceAssign"> Override Lock</label>
+        <button id="lockHorsesBtn" class="btn-secondary">Lock Assignments</button>
+        <button id="unlockHorsesBtn" class="btn-secondary">Unlock Assignments</button>
+
+        <div class="group">
+          <button id="adjustCountPreviewBtn" class="btn-secondary">Preview Adjust Horse Count…</button>
+          <button id="applyAdjustCountBtn" disabled class="btn-secondary">Apply Last Preview</button>
+        </div>
+
+        <div class="group">
+          <input id="scratchInput" placeholder="Horse # to scratch" size="8"/>
+          <button id="scratchPreviewBtn" class="btn-secondary">Preview Scratch…</button>
+          <button id="scratchApplyBtn" disabled class="btn-secondary">Apply Last Scratch</button>
+        </div>
+
+        <div class="group">
+          <textarea id="horseNames" rows="4" placeholder="Horse labels, one per line"></textarea>
+          <button id="setHorsesBtn" class="btn-secondary">Set Horse Labels</button>
+        </div>
+
+        <div class="group">
+          <button id="backupBtn" class="btn-secondary">Download Backup</button>
+          <input type="file" id="restoreFile" accept="application/json"/>
+          <button id="restoreBtn" class="btn-secondary">Restore from File</button>
+        </div>
+
+        <pre id="adminOutput" class="panel"></pre>
+        <div id="adminLog" class="panel"></div>
+      </div>
+    </section>
+  </main>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

@@ -1,1 +1,133 @@
-[...full final Derby‑branded styles.css with Kentucky Derby colors, fonts, responsive polish...]
+:root {
+  --derbyred: #DB0032;
+  --gold: #C5A572;
+  --navy: #002147;
+  --offwhite: #F8F5F0;
+  --white: #FFFFFF;
+  --black: #000000;
+  --scratched: #ff8a80;
+  --border: #ddd;
+}
+
+* { box-sizing: border-box; }
+body {
+  font-family: 'Open Sans', sans-serif;
+  background-color: var(--offwhite);
+  color: var(--black);
+  margin: 0;
+}
+
+h1, h2, h3 {
+  font-family: 'Playfair Display', serif;
+  margin: 0 0 .5rem;
+}
+
+.hero {
+  background-color: var(--derbyred);
+  color: var(--white);
+  padding: 1.5rem 1rem;
+  border-bottom: 4px solid var(--gold);
+  text-align: center;
+}
+
+.jackpot-bar {
+  position: sticky;
+  top: 0;
+  background-color: var(--gold);
+  color: var(--navy);
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+  border-bottom: 2px solid var(--navy);
+}
+
+.mapping {
+  background: var(--white);
+  border: 1px solid var(--gold);
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 6px;
+}
+
+#horses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(120px,1fr));
+  gap: .25rem .5rem;
+  font-size: .9rem;
+}
+
+#grid {
+  display: grid;
+  gap: 2px;
+  margin: 1rem 0;
+}
+
+.square {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid var(--navy);
+  background: var(--white);
+}
+.square.held { background-color: var(--derbyred); color: var(--white); }
+.square.paid { background-color: var(--gold); color: var(--navy); }
+.square.blocked { background-color: #ccc; color: #666; cursor: not-allowed; }
+.square.scratched { background-color: var(--scratched); color: var(--white); }
+.square.selected { outline: 2px solid var(--gold); }
+
+.btn-primary {
+  background-color: var(--derbyred);
+  color: var(--white);
+  border: 2px solid var(--derbyred);
+  border-radius: 6px;
+  padding: .5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-primary:hover {
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: var(--navy);
+}
+
+.btn-secondary {
+  background-color: var(--navy);
+  color: var(--white);
+  border: 2px solid var(--navy);
+  border-radius: 6px;
+  padding: .4rem .8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: var(--navy);
+}
+
+.panel {
+  background: var(--offwhite);
+  border: 1px solid var(--border);
+  padding: .5rem;
+  margin-top: .5rem;
+  max-height: 200px;
+  overflow: auto;
+  font-size: .85rem;
+  white-space: pre-wrap;
+}
+
+.buyer, .actions, .group {
+  display: grid;
+  gap: .5rem;
+  margin: 1rem;
+}
+
+label input, textarea {
+  padding: .4rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
