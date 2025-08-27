@@ -1,11 +1,46 @@
-const { getStore } = require('@netlify/blobs');
-const store = getStore('derby-min', { consistency: 'strong' });
+// Storage helpers with graceful fallback when Netlify Blobs isn't available.
+let blobsStore = null;
+try {
+  const { getStore } = require('@netlify/blobs');
+  // This will throw MissingBlobsEnvironmentError if not on Netlify or not enabled
+  blobsStore = getStore('derby-min', { consistency: 'strong' });
+} catch (e) {
+  blobsStore = null;
+}
+
+const fs = require('fs');
+const path = require('path');
+const TMP_FILE = '/tmp/derby-min.json';
+let mem = {};
+
+function readTmp() {
+  try { if (fs.existsSync(TMP_FILE)) mem = JSON.parse(fs.readFileSync(TMP_FILE, 'utf8') || '{}') || {}; } catch {}
+}
+function writeTmp() {
+  try { fs.writeFileSync(TMP_FILE, JSON.stringify(mem)); } catch {}
+}
+readTmp();
 
 async function getJSON(key, fallback) {
-  try { const v = await store.get(key, { type: 'json' }); return v == null ? fallback : v; }
-  catch { return fallback; }
+  if (blobsStore) {
+    try {
+      const v = await blobsStore.get(key, { type: 'json' });
+      return v == null ? fallback : v;
+    } catch { return fallback; }
+  }
+  // Fallback: in-memory + /tmp file
+  return key in mem ? mem[key] : fallback;
 }
-async function setJSON(key, val) { await store.set(key, JSON.stringify(val)); }
+
+async function setJSON(key, val) {
+  if (blobsStore) {
+    await blobsStore.set(key, JSON.stringify(val));
+    return;
+  }
+  mem[key] = val;
+  writeTmp();
+}
+
 function id(r,c){ return `${r}-${c}`; }
 
 function makeGrid(size=20, price=5){
@@ -31,4 +66,5 @@ async function ensure(){
 }
 
 async function save(grid){ await setJSON('grid',grid); }
-module.exports={ensure,save};
+
+module.exports={ensure,save,getJSON,setJSON};

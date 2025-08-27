@@ -1,3 +1,1 @@
-exports.handler = async () => {
-  return { statusCode: 200, body: JSON.stringify({ ok: true, ts: Date.now() }) };
-};
+exports.handler = async () => ({ statusCode: 200, body: JSON.stringify({ ok: true, ts: Date.now() }) });
