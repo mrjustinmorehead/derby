@@ -1,10 +1,7 @@
 {
   "name": "derby-squares",
   "private": true,
-  "version": "1.0.0",
-  "description": "Morehead Derby Exacta Squares",
-  "main": "index.js",
-  "license": "MIT",
+  "version": "0.1.0",
   "dependencies": {
     "@netlify/blobs": "^6.5.0"
   }
