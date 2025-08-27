@@ -1,21 +1,23 @@
-# Morehead Derby Exacta Squares
+# Derby Squares — Netlify Functions
 
-Production-ready Netlify Functions app with Netlify Blobs persistence.
+A clean 20×20 grid with **selection → hold → pay (demo)** using **Netlify Functions** for storage.
 
-## Quick start
-1. Set env vars in Netlify (Site settings → Environment):
-   - `ADMIN_KEY` (admin login secret)
-   - `ADMIN_JWT_SECRET` (optional, defaults to ADMIN_KEY)
-   - `PRICE_PER_SQUARE` (default 5), `GRID_SIZE` (default 20), `HOLD_MINUTES` (default 10)
-   - `PAYPAL_ENV` (`sandbox` or `live`)
-   - `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`
-2. In `public/index.html`, replace `YOUR_PAYPAL_CLIENT_ID` in the PayPal SDK URL.
-3. Deploy and visit `/?admin=1` to log in.
+## Deploy (Netlify)
+1. New site from Git → this repo
+2. **Build settings**
+   - Base directory: *(leave blank)*
+   - Publish directory: `public`
+   - Functions directory: `netlify/functions`
+3. (Optional for local dev) Set env var `LOCAL_FALLBACK=1` so storage uses `/tmp` if Blobs isn't available locally.
+4. Deploy → open `/api/ping` then `/api/list`.
 
-## API
-- `/api/list-squares`, `/api/lock-squares`, `/api/create-order`, `/api/capture-order`
-- Admin endpoints: `/api/admin-login`, `/api/admin-logout`, `/api/admin-assign-horses`, `/api/admin-set-horses`, `/api/admin-adjust-horses`, `/api/admin-scratch`, `/api/admin-set-config`, `/api/admin-backup`, `/api/admin-restore`, `/api/admin-export`, `/api/admin-health`
-- Webhook: `/api/paypal-webhook`
+## Endpoints
+- `GET /api/ping` → `{ ok: true }`
+- `GET /api/list` → grid state (creates on first call)
+- `POST /api/hold` → `{ name, email, squares:[{row,col}] }`
+- `POST /api/pay` → `{ name, email }`
+- `GET /api/health` → counts for available/held/paid
 
-## Storage
-Uses Netlify Blobs via `@netlify/blobs` in `kv-util.js`.
+## Notes
+- Storage uses **Netlify Blobs** when available, falling back to ephemeral `/tmp`.
+- The frontend always shows a grid; if `/api/list` fails, it renders a local demo with a banner.

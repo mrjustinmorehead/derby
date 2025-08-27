@@ -1,22 +1,46 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Derby Squares 20x20</title>
+  <title>Derby Squares — 20×20</title>
   <link rel="stylesheet" href="/styles.css"/>
 </head>
 <body>
-  <h1>Derby Squares (20×20)</h1>
-  <div>
-    <label>Name <input id="name"></label>
-    <label>Email <input id="email"></label>
-    <div id="summary"></div>
-  </div>
-  <div id="grid"></div>
-  <button id="holdBtn">Hold Selected</button>
-  <button id="payBtn">Complete Purchase (Demo)</button>
-  <div id="status"></div>
+  <header class="hero">
+    <h1>Derby Squares (20×20)</h1>
+    <p>Netlify Functions storage. Select squares → Hold → Complete Purchase (Demo).</p>
+  </header>
+
+  <main>
+    <section class="controls">
+      <label>Name <input id="name" autocomplete="name" /></label>
+      <label>Email <input id="email" type="email" autocomplete="email" /></label>
+      <div class="actions">
+        <button id="holdBtn" class="btn-primary">Hold Selected</button>
+        <button id="payBtn" class="btn-secondary">Complete Purchase (Demo)</button>
+      </div>
+      <div id="summary" class="status"></div>
+    </section>
+
+    <section class="legend">
+      <span class="chip"><span class="swatch available"></span>Available</span>
+      <span class="chip"><span class="swatch held"></span>Held</span>
+      <span class="chip"><span class="swatch paid"></span>Paid</span>
+      <span class="chip"><span class="swatch blocked"></span>Blocked</span>
+    </section>
+
+    <section>
+      <div id="grid" aria-label="Squares grid"></div>
+    </section>
+
+    <section>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="foot">Built for Netlify Functions. <a href="/api/ping" target="_blank" rel="noopener">/api/ping</a></footer>
+
   <script src="/app.js"></script>
 </body>
 </html>
