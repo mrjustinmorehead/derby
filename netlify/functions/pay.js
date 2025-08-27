@@ -8,5 +8,5 @@ exports.handler = async (event) => {
   if(!targets.length) return {statusCode:409,body:'No held squares'};
   for(const s of targets){ s.status='paid'; s.name=name; }
   await save(grid);
-  return {statusCode:200,body:JSON.stringify({ok:true,paid:targets.map(s=>({row:s.row,col:s.col}))})};
+  return {statusCode:200,headers:{'Content-Type':'application/json'},body:JSON.stringify({ok:true,paid:targets.map(s=>({row:s.row,col:s.col}))})};
 };

@@ -1,22 +1,26 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Derby Squares 20x20</title>
+  <title>Derby Squares 20×20</title>
   <link rel="stylesheet" href="/styles.css"/>
 </head>
 <body>
-  <h1>Derby Squares (20×20)</h1>
-  <div>
-    <label>Name <input id="name"></label>
-    <label>Email <input id="email"></label>
-    <div id="summary"></div>
-  </div>
-  <div id="grid"></div>
-  <button id="holdBtn">Hold Selected</button>
-  <button id="payBtn">Complete Purchase (Demo)</button>
-  <div id="status"></div>
+  <header class="hero"><h1>Derby Squares (20×20)</h1></header>
+  <main>
+    <div class="controls">
+      <label>Name <input id="name" /></label>
+      <label>Email <input id="email" type="email" /></label>
+      <div id="summary"></div>
+    </div>
+    <div id="grid"></div>
+    <div class="actions">
+      <button id="holdBtn" class="btn-primary">Hold Selected</button>
+      <button id="payBtn" class="btn-secondary">Complete Purchase (Demo)</button>
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+  </main>
   <script src="/app.js"></script>
 </body>
 </html>

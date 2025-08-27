@@ -1,46 +1,47 @@
-// Storage helpers with graceful fallback when Netlify Blobs isn't available.
-let blobsStore = null;
-try {
-  const { getStore } = require('@netlify/blobs');
-  // This will throw MissingBlobsEnvironmentError if not on Netlify or not enabled
-  blobsStore = getStore('derby-min', { consistency: 'strong' });
-} catch (e) {
-  blobsStore = null;
+// Netlify Blobs (lazy init) + optional local fallback for dev.
+// On Netlify Functions this requires *no* tokens.
+let _store = null;
+
+function blob() {
+  if (_store) return _store;
+  try {
+    const { getStore } = require('@netlify/blobs');
+    _store = getStore('derby-min'); // auto-wired on Netlify Functions
+    return _store;
+  } catch (e) {
+    // Optional local fallback only if explicitly enabled
+    if (process.env.LOCAL_FALLBACK === '1') {
+      return (_store = localFallbackStore());
+    }
+    // Re-throw with friendly message
+    const err = new Error('Netlify Blobs not available in this environment. Deploy as a Netlify Function (Node) or set LOCAL_FALLBACK=1 for ephemeral dev storage.');
+    err.cause = e;
+    throw err;
+  }
 }
 
-const fs = require('fs');
-const path = require('path');
-const TMP_FILE = '/tmp/derby-min.json';
-let mem = {};
-
-function readTmp() {
-  try { if (fs.existsSync(TMP_FILE)) mem = JSON.parse(fs.readFileSync(TMP_FILE, 'utf8') || '{}') || {}; } catch {}
+function localFallbackStore() {
+  const fs = require('fs');
+  const TMP = '/tmp/derby-min.json';
+  let mem = {};
+  try { if (fs.existsSync(TMP)) mem = JSON.parse(fs.readFileSync(TMP, 'utf8') || '{}') || {}; } catch {}
+  return {
+    async get(key, { type } = {}) { return mem[key]; },
+    async set(key, val) { mem[key] = typeof val === 'string' ? JSON.parse(val) : val; try { fs.writeFileSync(TMP, JSON.stringify(mem)); } catch {} }
+  };
 }
-function writeTmp() {
-  try { fs.writeFileSync(TMP_FILE, JSON.stringify(mem)); } catch {}
-}
-readTmp();
 
 async function getJSON(key, fallback) {
-  if (blobsStore) {
-    try {
-      const v = await blobsStore.get(key, { type: 'json' });
-      return v == null ? fallback : v;
-    } catch { return fallback; }
+  try {
+    const v = await blob().get(key, { type: 'json' });
+    return v == null ? fallback : v;
+  } catch {
+    return fallback;
   }
-  // Fallback: in-memory + /tmp file
-  return key in mem ? mem[key] : fallback;
 }
-
 async function setJSON(key, val) {
-  if (blobsStore) {
-    await blobsStore.set(key, JSON.stringify(val));
-    return;
-  }
-  mem[key] = val;
-  writeTmp();
+  await blob().set(key, JSON.stringify(val));
 }
-
 function id(r,c){ return `${r}-${c}`; }
 
 function makeGrid(size=20, price=5){
@@ -57,14 +58,13 @@ function makeGrid(size=20, price=5){
 
 async function ensure(){
   const size=20, price=5;
-  let grid=await getJSON('grid',null);
-  if(!Array.isArray(grid)||grid.length!==size*size){
-    grid=makeGrid(size,price);
-    await setJSON('grid',grid);
+  let grid = await getJSON('grid', null);
+  if (!Array.isArray(grid) || grid.length !== size*size) {
+    grid = makeGrid(size, price);
+    await setJSON('grid', grid);
   }
-  return {grid,size,price};
+  return { grid, size, price };
 }
+async function save(grid){ await setJSON('grid', grid); }
 
-async function save(grid){ await setJSON('grid',grid); }
-
-module.exports={ensure,save,getJSON,setJSON};
+module.exports = { ensure, save, getJSON, setJSON };
