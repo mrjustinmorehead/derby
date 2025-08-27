@@ -4,15 +4,24 @@ let state={squares:[]};let selected=new Set();
 function setStatus(m){statusEl.textContent=m||'';}
 function setSummary(){summaryEl.textContent=selected.size?`${selected.size} selected`:"";}
 async function fetchState(){
-  try{
-    const r=await fetch('/api/list'); if(!r.ok) throw new Error('list '+r.status);
-    state=await r.json(); render();
-  }catch(e){
-    // Render a local demo grid if API not ready
-    state={gridSize:20,squares:[]};
-    for(let r=1;r<=20;r++){for(let c=1;c<=20;c++){state.squares.push({id:`${r}-${c}`,row:r,col:c,status:r===c?'blocked':'available'});}}
-    const banner=document.createElement('div');banner.style.cssText='margin:.5rem 1rem;padding:.5rem;border:1px solid #f39c12;background:#fffbea;border-radius:6px;';
-    banner.textContent='Live API not reachable. Showing local demo grid. Open /api/list to debug.';document.body.insertBefore(banner, gridEl);
+  try {
+    const res = await fetch('/api/list');
+    if (!res.ok) throw new Error('list not ok: ' + res.status);
+    state = await res.json();
+    render();
+  } catch (e) {
+    // Fallback: local 20x20 so you always see squares
+    console.warn('Falling back to local grid:', e.message);
+    state = { gridSize: 20, price: 5, squares: [] };
+    for (let r=1;r<=20;r++){
+      for (let c=1;c<=20;c++){
+        state.squares.push({ id: `${r}-${c}`, row:r, col:c, status: r===c ? 'blocked' : 'available' });
+      }
+    }
+    const banner = document.createElement('div');
+    banner.style.cssText = 'margin:.5rem 0;padding:.5rem;border:1px solid #f39c12;background:#fffbea;border-radius:6px;';
+    banner.textContent = 'Note: live API not reachable. Showing local demo grid. Open /api/list to debug your Functions.';
+    document.body.insertBefore(banner, document.getElementById('grid'));
     render();
   }
 }

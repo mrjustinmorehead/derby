@@ -11,7 +11,7 @@ exports.handler = async (event) => {
     if(s.status==='available'){ s.status='held'; s.name=name; s.email=email; }
     else unavailable.push({row:s.row,col:s.col,status:s.status});
   }
-  if(unavailable.length) return {statusCode:409, headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:'Some unavailable',unavailable})};
+  if(unavailable.length) return {statusCode:409,body:JSON.stringify({message:'Some unavailable',unavailable})};
   await save(grid);
-  return {statusCode:200,headers:{'Content-Type':'application/json'},body:JSON.stringify({ok:true})};
+  return {statusCode:200,body:JSON.stringify({ok:true})};
 };
